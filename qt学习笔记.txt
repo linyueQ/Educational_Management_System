@@ -1,0 +1,174 @@
+1. 把按钮和函数用槽函数连接起来：
+connect(ui.Button5_createCourselist, SIGNAL(clicked()), this, SLOT(createcourselist()));
+
+
+2. label设置文字：
+ui.label_welcome->setText(QString::fromLocal8Bit("欢迎你，管理员 ") +
+ QString::fromLocal8Bit("超级管理员")+ QString::fromLocal8Bit("，你的账号为：") + tr("admin"));
+
+ 
+3. 输出错误提示：qDebug() << "default don't perform exit.";
+
+
+4. 弹消息窗口：（带是否的）
+QMessageBox::information(this, QString::fromLocal8Bit("未找到默认dat文件"), 
+QString::fromLocal8Bit("未找到默认dat文件，请使用“从外部（.csv）文件导入数据库”的功能导入信息库！"));
+
+
+5. qLineEdit文本框设置是否可视：
+ echoLineEdit->setEchoMode(QLineEdit::Normal);
+ //密码，一般是用小黑点覆盖你所输入的字符
+ echoLineEdit->setEchoMode(QLineEdit::Password);
+//任何输入都看不见（只是看不见，不是不能输入）
+echoLineEdit->setEchoMode(QLineEdit::NoEcho);
+
+6. 给下拉框ComboBox加入可选项：
+ui.comboBox5_major->addItem(tr(majorlist[i]));
+
+
+7. 检查复选框（小圆点）是否被选择：
+ui.radioButton1_student->isChecked()
+
+8. 打开文件窗口的各种操作：
+QFileDialog *fileDialog = new QFileDialog(this);
+fileDialog->setWindowTitle(QString::fromLocal8Bit("请选择需要导入的CSV文件"));
+
+fileDialog->setDirectory(".");//设置默认文件路径
+fileDialog->setNameFilter(tr("Images(*.png *.jpg *.jpeg *.bmp)")); //设置文件过滤器
+
+//设置可以选择多个文件,默认为只能选择一个文件（一般我们不需要用到这个）
+fileDialog->setFileMode(QFileDialog::ExistingFiles);
+
+//AcceptOpen打开文件,AcceptSave保存文件
+fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
+
+//设置视图模式
+fileDialog->setViewMode(QFileDialog::Detail);
+
+//设置默认文件后缀
+fileDialog->setDefaultSuffix("csv");
+
+//执行打开文件窗口用exec()，这里还带有判断是否成功
+if (fileDialog->exec() == QDialog::Accepted)
+
+//拿一个string把选择的文件路径存起来，注意selectedFiles函数返回的是一个数组
+QString path = fileDialog->selectedFiles()[0];
+
+
+9. 设置编码格式，注意WIN10下面读文件要先转成GB2312，再赋值给一个string
+然后，还要把string转成char数组，才能读文件：
+QTextCodec *code = QTextCodec::codecForName("GB2312");
+string tmp = code->fromUnicode(path).data();
+char filepath[300];strcpy(filepath, tmp.c_str());
+//再提示一下用户选择的是哪个文件
+QMessageBox::information(NULL, QString::fromLocal8Bit("提示！"), QString::fromLocal8Bit(filepath));
+
+//后面就是我们熟悉的文件操作了
+
+
+10. 保存文件窗口的各种操作：
+//第一个参数是这个类的指针，第二个参数是窗口的名字，第三个参数是文件名，第四个参数是文件类型选择
+QString path = QFileDialog::getSaveFileName(this, QString::fromLocal8Bit("请选择存放数据库列表的路径"), 
+"./" + QString::fromLocal8Bit("学生数据库"), tr("CSV file (*.csv)"));
+
+//判断路径是否获取成功
+if (!path.isEmpty())
+
+//转码写文件
+QTextCodec *code = QTextCodec::codecForName("GB2312");
+string outpath = code->fromUnicode(path).data();
+ofstream outfile(outpath.c_str(), ios::out);
+
+//获取下拉框当前选项的位置
+int ii = ui.comboBox1_grade->currentIndex() + 1;//currentIndex默认空白时为0
+.ui-> ComboBox->currentText()//获取下拉框当前选项的内容
+
+
+11.//设置各控件为关闭选择功能的状态，仅仅做数据展示
+	ui.comboBox3_grage->setDisabled(true);
+	ui.comboBox3_major->setDisabled(true);
+	ui.comboBox3_sex->setDisabled(true);
+	ui.lineEdit3_name->setEnabled(false);
+	ui.lineEdit3_idnum->setEnabled(false);
+	ui.lineEdit3_tel->setEnabled(false);
+	
+	
+12.//从输入框获取用户输入的文字
+	QString inputno = ui.lineEdit3_noin->text();
+
+
+13.	直接把文本框的内容转成string
+	string oldpw = ui.oldpw7->text().toStdString();
+	
+	
+15.	QtableWidget的操作：
+	tableWidget->clear();//清空表格
+	tableWidget->setColumnCount(column); //设置列数
+	tableWidget->setRowCount(row);//设置行数
+	tableWidget->horizontalHeader()->setSectionsClickable(true);//设置表头可否点击（默认点击后进行排序）															
+	
+	QStringList header;//设置表头内容（就是设置每一列的标题）
+	for (int i = 0; i < column; i++)
+	{
+		header << QString::fromLocal8Bit(head[i].c_str());
+	}
+	tableWidget->setHorizontalHeaderLabels(header);
+	
+	//设置表头字体加粗
+	QFont font = tableWidget->horizontalHeader()->font();
+	font.setBold(true);
+	tableWidget->horizontalHeader()->setFont(font);
+
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < column; j++)
+		{
+			//此处针对不同编码的内容有不同的填充方式
+			if (type == 1)//utf-8
+				tableWidget->setItem(i, j, new QTableWidgetItem(tr(context[i][j].c_str())));
+			else if (type == 2)//GB2312
+				tableWidget->setItem(i, j, new QTableWidgetItem(QString::fromLocal8Bit(context[i][j].c_str())));
+		}
+	}
+
+	//tableWidget->horizontalHeader()->setStretchLastSection(true); //设置充满表宽度
+	tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); //自适应列宽
+	tableWidget->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch); //自适应行高
+
+	tableWidget->setFrameShape(QFrame::NoFrame); //设置无边框
+	tableWidget->setShowGrid(true); //设置不显示格子线
+	tableWidget->verticalHeader()->setVisible(true); //设置垂直头不可见
+	tableWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);  //可多选（Ctrl、Shift、  Ctrl+A都可以）
+	tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);  //设置选择行为时每次选择一行
+	//tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers); //设置不可编辑
+
+	tableWidget->setStyleSheet("selection-background-color:lightblue;"); //设置选中背景色
+	tableWidget->horizontalHeader()->setStyleSheet("QHeaderView::section{background:skyblue;}"); //设置表头背景色
+																								 //设置水平、垂直滚动条
+	tableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);//开启滚动条
+	tableWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);//开启滚动条
+	tableWidget->repaint();//更新显示
+
+	//此处定义点击表头排序的功能
+	QHeaderView *headerGoods = tableWidget->horizontalHeader();
+	//SortIndicator为水平标题栏文字旁边的三角指示器
+	headerGoods->setSortIndicator(0, Qt::AscendingOrder);
+	headerGoods->setSortIndicatorShown(true);
+	headerGoods->setSectionsClickable(true);
+	connect(headerGoods, SIGNAL(sectionClicked(int)), tableWidget, SLOT(sortByColumn(int)));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

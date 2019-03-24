@@ -1,0 +1,36 @@
+到这个网址看：https://blog.csdn.net/ac_huang/article/details/36477039
+
+中间要输入的代码如下：
+
+set INCLUDE=%include%;E:\Oracle\product\11.2.0\dbhome_1\OCI\include;E:\Qt\Qt5.7.1\Tools\mingw530_32\include
+ 
+set LIB=%lib%;E:\Oracle\product\11.2.0\dbhome_1\OCI\lib\MSVC
+ 
+cd /d E:\Qt\Qt5.7.1\5.7\Src\qtbase\src\plugins\sqldrivers\oci
+ 
+qmake oci.pro
+
+把下面两行东西加到 "oci.pro"文件里面
+
+INCLUDEPATH +=E:\Oracle\product\11.2.0\dbhome_1\OCI\include
+LIBPATH +=E:\Oracle\product\11.2.0\dbhome_1\OCI\lib\MSVC
+
+mingw32-make
+
+
+最后：
+
+D:\Qt5.7.1\5.7\Src\qtbase\plugins\sqldrivers
+下所有4个文件拷贝到
+D:\Qt5.7.1\5.7\mingw53_32\plugins\sqldrivers
+
+
+关于运行出错的解决方法：
+https://blog.csdn.net/liuligui5200/article/details/46776637
+
+具体操作如下：
+D:\QtWidgetApplication\oracleTest\main.cpp:11: error: undefined reference to `_imp___ZN12QSqlDatabase7driversEv'
+解决方案：在新建的项目文件里面的 .pro文件中添加一句QT+=sql（注意是在项目文件的 .pro 加这句话）
+
+
+https://blog.csdn.net/liang890319/article/details/7079804
